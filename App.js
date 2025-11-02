@@ -1,5 +1,6 @@
 import {useState} from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import Animated, { useSharedValue, withSpring } from 'react-native-reanimarted';
 
 const size = 8; // Size of the board (a * a) [temporary solution]
 const minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
@@ -56,6 +57,23 @@ const styles = StyleSheet.create({
     margin: '0.5%',
     boxShadow: '2px 2px teal',
   },
+  aContainer: {
+    position: 'relative',
+  },
+  cover: {
+    position: 'absolute',
+    flex: '1',
+    width: '100%',
+    aspectRatio: 1 / 1,
+    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+  },
+  noCover: {
+    position: 'absolute',
+    flex: '1',
+    width: '0%',
+    aspectRatio: 1 / 1,
+    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+  },
 });
 
 const GenBoard = () => {
@@ -77,9 +95,12 @@ const GenBoard = () => {
     <>
       {rows.map((rowNumber) => <View style={styles.row} key={rowNumber}>
         {flds.map((fldNumber) =>
-          <TouchableHighlight style={stateIsUncovered[rowNumber][fldNumber] ? styles.uncoveredField : styles.field} onPress={() => handlePress(rowNumber, fldNumber)} key={fldNumber}>
-            <View>
+          <TouchableHighlight style={styles.field} onPress={() => handlePress(rowNumber, fldNumber)} key={fldNumber}>
+            <View style={styles.aContainer}>
+              <>
               <Text>{board[rowNumber][fldNumber].hasMine ? '*' : `${board[rowNumber][fldNumber].minesNear}`}</Text>
+              </>
+              <Animated.View style={board[rowNumber][fldNumber].isUncovered ? styles.noCover : styles.cover}></Animated.View>
             </View>
           </TouchableHighlight>
         )}
@@ -97,7 +118,7 @@ function prepareBoard() {
     for (let j = 0; j < size; j++) {
       board[i].push(new Field(false, false, 0)); // Push backend fields
     }
-  }  
+  }
 }
 
 function placeMines(notHereX, notHereY) { // Using the arguments, we want to make sure that the player doesn't start with stepping on a mine (which would be frustrating)
