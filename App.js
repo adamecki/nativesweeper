@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+// import SvgComponent from './assets/icons/1';
 
 const size = 8; // Size of the board (a * a) [temporary solution]
 const minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
     flex: '1',
     width: '100%',
     aspectRatio: 1 / 1,
-    backgroundColor: 'rgba(0, 0, 255, 0.5)',
+    backgroundColor: 'rgba(0, 0, 255, 1)',
   },
   noCover: {
     position: 'absolute',
@@ -84,7 +85,7 @@ const GenBoard = () => {
     boardDone = true;
   }
   
-  const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(0, 0, 255, 0.5)')})); // Tak jakby działa?
+  const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(0, 0, 255, 1)')})); // Tak jakby działa?
 
   const handlePress = (x, y) => {
     uncoverField(y, x);
@@ -110,6 +111,14 @@ const GenBoard = () => {
             <View style={styles.aContainer}>
               <>
               <Text>{board[rowNumber][fldNumber].hasMine ? '*' : `${board[rowNumber][fldNumber].minesNear}`}</Text>
+              {/* <View style={{
+                position: 'absolute',
+                width: '100%',
+                aspectRatio: 1/1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>{SvgComponent()}</View> */}
               </>
               <Animated.View style={[styles.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}></Animated.View>
             </View>
