@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
-import Animated, { useSharedValue, withSpring } from 'react-native-reanimarted';
+import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
 
 const size = 8; // Size of the board (a * a) [temporary solution]
 const minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
@@ -16,6 +16,8 @@ let minesConfigured = false;
 const rows = [];
 const flds = [];
 
+const board = []; // board containing mine values for the algorithm (backend?)
+
 // Field class containing its state: does it contain a mine? Is it already uncovered? How many mines are adjacent to it?
 class Field {
   constructor(hasMine, isUncovered, minesNear) {
@@ -24,8 +26,6 @@ class Field {
     this.minesNear = minesNear;
   }
 };
-
-const board = []; // board containing mine values for the algorithm (backend?)
 
 const styles = StyleSheet.create({
   container: {
@@ -83,10 +83,21 @@ const GenBoard = () => {
     prepareBoard();
     boardDone = true;
   }
+  
+  const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(0, 0, 255, 0.5)')})); // Tak jakby działa?
 
   const handlePress = (x, y) => {
     uncoverField(y, x);
     const newBoard = board.map((x) => x.map((y) => y.isUncovered));
+
+    // Animate every field change in anim
+    for(let i = 0; i < size; i++) {
+      for(let j = 0; j < size; j++) {
+        if(board[i][j].isUncovered) {
+          anim[i][j].value = withSpring('rgba(0, 0, 255, 0)');
+        }
+      }
+    }
 
     setStateIsUncovered(newBoard);
   }
@@ -100,7 +111,7 @@ const GenBoard = () => {
               <>
               <Text>{board[rowNumber][fldNumber].hasMine ? '*' : `${board[rowNumber][fldNumber].minesNear}`}</Text>
               </>
-              <Animated.View style={board[rowNumber][fldNumber].isUncovered ? styles.noCover : styles.cover}></Animated.View>
+              <Animated.View style={[styles.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}></Animated.View>
             </View>
           </TouchableHighlight>
         )}
