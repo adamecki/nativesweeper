@@ -1,7 +1,10 @@
 import {useState} from 'react';
 import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
-// import SvgComponent from './assets/icons/1';
+
+import MineSvgImage from './assets/icons/mine';
+import FlagSvgImage from './assets/icons/flag';
+import NumberIcon from './assets/icons/number-icons';
 
 const size = 8; // Size of the board (a * a) [temporary solution]
 const minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
@@ -21,10 +24,11 @@ const board = []; // board containing mine values for the algorithm (backend?)
 
 // Field class containing its state: does it contain a mine? Is it already uncovered? How many mines are adjacent to it?
 class Field {
-  constructor(hasMine, isUncovered, minesNear) {
+  constructor(hasMine, isUncovered, minesNear, isFlagged) {
     this.hasMine = hasMine;
     this.isUncovered = isUncovered;
     this.minesNear = minesNear;
+    this.isFlagged = isFlagged;
   }
 };
 
@@ -79,6 +83,7 @@ const styles = StyleSheet.create({
 
 const GenBoard = () => {
   const [stateIsUncovered, setStateIsUncovered] = useState(board.map((x) => x.map((y) => y.isUncovered)));
+  const [stateIsFlagged, setStateIsFlagged] = useState(board.map((x) => x.map((y) => y.isFlagged)));
 
   if(!boardDone) {
     prepareBoard();
@@ -103,24 +108,39 @@ const GenBoard = () => {
     setStateIsUncovered(newBoard);
   }
 
+  const handleLongPress = (x, y) => { // flag/unflag field
+    flagUnflag(y, x);
+    const newBoard = board.map((x) => x.map((y) => y.isFlagged));
+
+    setStateIsFlagged(newBoard);
+  }
+
   return (
     <>
       {rows.map((rowNumber) => <View style={styles.row} key={rowNumber}>
         {flds.map((fldNumber) =>
-          <TouchableHighlight style={styles.field} onPress={() => handlePress(rowNumber, fldNumber)} key={fldNumber}>
+          <TouchableHighlight style={styles.field}
+            onPress={() => handlePress(rowNumber, fldNumber)}
+            onLongPress={() => handleLongPress(rowNumber, fldNumber)}
+            key={fldNumber}>
             <View style={styles.aContainer}>
               <>
-              <Text>{board[rowNumber][fldNumber].hasMine ? '*' : `${board[rowNumber][fldNumber].minesNear}`}</Text>
-              {/* <View style={{
-                position: 'absolute',
-                width: '100%',
-                aspectRatio: 1/1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>{SvgComponent()}</View> */}
+              <Text>
+                {board[rowNumber][fldNumber].hasMine ?
+                  MineSvgImage()
+                :
+                  board[rowNumber][fldNumber].minesNear == 0 ?
+                  '' : NumberIcon(null, board[rowNumber][fldNumber].minesNear)
+                }
+              </Text>
               </>
-              <Animated.View style={[styles.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}></Animated.View>
+              <Animated.View style={[styles.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}>
+                <Text>
+                  {board[rowNumber][fldNumber].isFlagged ?
+                    FlagSvgImage() : ''
+                  }
+                </Text>
+              </Animated.View>
             </View>
           </TouchableHighlight>
         )}
@@ -136,7 +156,7 @@ function prepareBoard() {
 
     board.push([]); // Push backend rows
     for (let j = 0; j < size; j++) {
-      board[i].push(new Field(false, false, 0)); // Push backend fields
+      board[i].push(new Field(false, false, 0, false)); // Push backend fields
     }
   }
 }
@@ -189,7 +209,7 @@ function uncoverField(x, y) {
   if(board[y][x].hasMine) {
     // Losing game mechanism
   } else {
-    if(!board[y][x].isUncovered) {
+    if(!board[y][x].isUncovered && !board[y][x].isFlagged) {
       board[y][x].isUncovered = true;
       uncoveredFields++;
 
@@ -203,6 +223,12 @@ function uncoverField(x, y) {
         }
       }
     }
+  }
+}
+
+function flagUnflag(x, y) {
+  if(!board[y][x].isUncovered) {
+    board[y][x].isFlagged = !board[y][x].isFlagged;
   }
 }
 

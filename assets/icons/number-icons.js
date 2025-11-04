@@ -1,7 +1,9 @@
 import * as React from "react"
 import Svg, { Text, TSpan } from "react-native-svg"
 
-const SvgComponent = (props) => (
+const fillColor = ["blue", "green", "red", "blue", "green", "red", "blue", "green", "red"];
+
+const NumberIcon = (props, number) => (
   <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={'100%'}
@@ -19,7 +21,7 @@ const SvgComponent = (props) => (
         writingMode: "lr-tb",
         direction: "ltr",
         textAnchor: "start",
-        fill: "green",
+        fill: fillColor[number-1],
         strokeWidth: 0.264583,
       }}
     >
@@ -29,12 +31,12 @@ const SvgComponent = (props) => (
         style={{
           fontSize: "203.2px",
           strokeWidth: 0.264583,
-          fill: "green",
+          fill: fillColor[number-1],
         }}
       >
-        {"1"}
+        {`${number}`}
       </TSpan>
     </Text>
   </Svg>
 )
-export default SvgComponent
+export default NumberIcon
