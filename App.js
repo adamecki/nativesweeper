@@ -24,11 +24,12 @@ const board = []; // board containing mine values for the algorithm (backend?)
 
 // Field class containing its state: does it contain a mine? Is it already uncovered? How many mines are adjacent to it?
 class Field {
-  constructor(hasMine, isUncovered, minesNear, isFlagged) {
+  constructor(hasMine, isUncovered, minesNear, isFlagged, flagsNear) {
     this.hasMine = hasMine;
     this.isUncovered = isUncovered;
     this.minesNear = minesNear;
     this.isFlagged = isFlagged;
+    this.flagsNear = flagsNear;
   }
 };
 
@@ -130,7 +131,8 @@ const GenBoard = () => {
                   MineSvgImage()
                 :
                   board[rowNumber][fldNumber].minesNear == 0 ?
-                  '' : NumberIcon(null, board[rowNumber][fldNumber].minesNear)
+                  '' : board[rowNumber][fldNumber].isUncovered ? 
+                        NumberIcon(null, board[rowNumber][fldNumber].minesNear) : ''
                 }
               </Text>
               </>
@@ -156,7 +158,7 @@ function prepareBoard() {
 
     board.push([]); // Push backend rows
     for (let j = 0; j < size; j++) {
-      board[i].push(new Field(false, false, 0, false)); // Push backend fields
+      board[i].push(new Field(false, false, 0, false, 0)); // Push backend fields
     }
   }
 }
@@ -222,6 +224,18 @@ function uncoverField(x, y) {
           }
         }
       }
+    } 
+    if (board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
+      board[y][x].flagsNear = 0; // This won't be needed anymore as we have uncovered everything around the field
+                                 // But it prevents exceeding the call stack.
+      // rebuild them ifs. They can be optimized. Bun dem! wtfffff
+      for(let nx = -1; nx <= 1; nx++) {
+        for(let ny = -1; ny <= 1; ny++) {
+          if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
+            uncoverField(x + nx, y + ny);
+          }
+        }
+      }
     }
   }
 }
@@ -229,6 +243,18 @@ function uncoverField(x, y) {
 function flagUnflag(x, y) {
   if(!board[y][x].isUncovered) {
     board[y][x].isFlagged = !board[y][x].isFlagged;
+
+    for(let nx = -1; nx <= 1; nx++) {
+      for(let ny = -1; ny <= 1; ny++) {
+          if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
+            if (board[y][x].isFlagged) { // add a flagnear
+              board[y+ny][x+nx].flagsNear += 1;
+            } else { //subtract a flagnear
+              board[y+ny][x+nx].flagsNear -= 1;
+            }
+          }
+      }
+    }
   }
 }
 
