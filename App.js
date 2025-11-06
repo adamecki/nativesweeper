@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import { StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
 
 import MineSvgImage from './assets/icons/mine';
@@ -15,6 +15,7 @@ let uncoveredFields = 0; // Subtracted from the size and mines placed to determi
 // Additional variables to make sure the game places mines and configures the board only once
 let boardDone = false;
 let minesConfigured = false; 
+let gameplay = true; // Variable that makes sure no game functions are being run when game's over
 
 // Arrays containing frontend field keys from 0 to n-1, n being size of the board
 const rows = [];
@@ -56,13 +57,13 @@ const styles = StyleSheet.create({
     margin: '0.5%',
     boxShadow: '2px 2px teal',
   },
-  uncoveredField: {
+  fieldWithMine: {
     flex: 1,
-    aspectRatio: 1 / 1,
-    backgroundColor: '#808080',
+    aspectRatio: 1/1,
+    backgroundColor: '#DD0000',
     margin: '0.5%',
     boxShadow: '2px 2px teal',
-  },
+  }, 
   aContainer: {
     position: 'relative',
   },
@@ -72,13 +73,6 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1 / 1,
     backgroundColor: 'rgba(0, 0, 255, 1)',
-  },
-  noCover: {
-    position: 'absolute',
-    flex: '1',
-    width: '0%',
-    aspectRatio: 1 / 1,
-    backgroundColor: 'rgba(0, 0, 255, 0.5)',
   },
 });
 
@@ -120,7 +114,7 @@ const GenBoard = () => {
     <>
       {rows.map((rowNumber) => <View style={styles.row} key={rowNumber}>
         {flds.map((fldNumber) =>
-          <TouchableHighlight style={styles.field}
+          <TouchableHighlight style={board[rowNumber][fldNumber].hasMine ? styles.fieldWithMine : styles.field}
             onPress={() => handlePress(rowNumber, fldNumber)}
             onLongPress={() => handleLongPress(rowNumber, fldNumber)}
             key={fldNumber}>
@@ -202,20 +196,57 @@ function placeMines(notHereX, notHereY) { // Using the arguments, we want to mak
   console.log('Mines information has been set up.');
 }
 
-function uncoverField(x, y) {
+function uncoverField(x, y, original = true) { // Restructurize these nested ifs
+if(gameplay) {
   if(!minesConfigured) {
     placeMines(x, y);
     minesConfigured = true;
   }
 
-  if(board[y][x].hasMine) {
-    // Losing game mechanism
+  if(board[y][x].hasMine) { // Lost (optimize this stuff)
+    if(!board[y][x].isFlagged) {
+      gameplay = false;
+
+      // Uncover the whole board?
+      for(let i = 0; i < size; i++) {
+        for(let j = 0; j < size; j++) {
+          board[i][j].isUncovered = true;
+        }
+      }
+
+      Alert.alert('Game over', 'Placeholder message');
+    }
   } else {
+    if (original && board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
+      board[y][x].flagsNear = 0; // This won't be needed anymore as we have uncovered everything around the field
+                                 // But it prevents exceeding the call stack.
+      // rebuild them ifs. They can be optimized. Bun dem! wtfffff
+      for(let nx = -1; nx <= 1; nx++) {
+        for(let ny = -1; ny <= 1; ny++) {
+          if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
+            uncoverField(x + nx, y + ny, false);
+          }
+        }
+      }
+    }
     if(!board[y][x].isUncovered && !board[y][x].isFlagged) {
       board[y][x].isUncovered = true;
       uncoveredFields++;
+      console.log(uncoveredFields);
 
-      if(board[y][x].minesNear == 0) {
+      if(uncoveredFields == (size * size) - minesToBePlaced) {
+        // Won
+        gameplay = false;
+
+        // Uncover the whole board?
+        for(let i = 0; i < size; i++) {
+          for(let j = 0; j < size; j++) {
+            board[i][j].isUncovered = true;
+          }
+        }
+
+        Alert.alert('Congrats', 'Placeholder message');
+      } else if(board[y][x].minesNear == 0) {
         for(let nx = -1; nx <= 1; nx++) {
           for(let ny = -1; ny <= 1; ny++) {
             if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size) {
@@ -224,20 +255,9 @@ function uncoverField(x, y) {
           }
         }
       }
-    } 
-    if (board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
-      board[y][x].flagsNear = 0; // This won't be needed anymore as we have uncovered everything around the field
-                                 // But it prevents exceeding the call stack.
-      // rebuild them ifs. They can be optimized. Bun dem! wtfffff
-      for(let nx = -1; nx <= 1; nx++) {
-        for(let ny = -1; ny <= 1; ny++) {
-          if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
-            uncoverField(x + nx, y + ny);
-          }
-        }
-      }
     }
   }
+}
 }
 
 function flagUnflag(x, y) {
