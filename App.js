@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import { Alert, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableHighlight, View, Button } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
 
 import MineSvgImage from './assets/icons/mine';
@@ -18,10 +18,10 @@ let minesConfigured = false;
 let gameplay = true; // Variable that makes sure no game functions are being run when game's over
 
 // Arrays containing frontend field keys from 0 to n-1, n being size of the board
-const rows = [];
-const flds = [];
+let rows = [];
+let flds = [];
 
-const board = []; // board containing mine values for the algorithm (backend?)
+let board = []; // board containing mine values for the algorithm (backend?)
 
 // Field class containing its state: does it contain a mine? Is it already uncovered? How many mines are adjacent to it?
 class Field {
@@ -103,6 +103,37 @@ const GenBoard = () => {
     setStateIsUncovered(newBoard);
   }
 
+  const restartgame = () => {
+    // Reset counters
+    
+    board = [];
+    rows = [];
+    flds = [];
+    minesPlaced = 0;
+    uncoveredFields = 0;
+    prepareBoard();
+    minesConfigured = false;
+
+    gameplay = true;
+
+    const newFlds = board.map((x) => x.map((y) => y.isUncovered));
+
+    // Animate every field change in anim
+    for(let i = 0; i < size; i++) {
+      for(let j = 0; j < size; j++) {
+        if(!board[i][j].isUncovered) {
+          anim[i][j].value = withSpring('rgba(0, 0, 255, 1)');
+        }
+      }
+    }
+
+    setStateIsUncovered(newFlds);
+
+    const newFlags = board.map((x) => x.map((y) => y.isFlagged));
+
+    setStateIsFlagged(newFlags);
+  }
+
   const handleLongPress = (x, y) => { // flag/unflag field
     flagUnflag(y, x);
     const newBoard = board.map((x) => x.map((y) => y.isFlagged));
@@ -112,6 +143,7 @@ const GenBoard = () => {
 
   return (
     <>
+      <View style={styles.board}>
       {rows.map((rowNumber) => <View style={styles.row} key={rowNumber}>
         {flds.map((fldNumber) =>
           <TouchableHighlight style={board[rowNumber][fldNumber].hasMine ? styles.fieldWithMine : styles.field}
@@ -141,6 +173,8 @@ const GenBoard = () => {
           </TouchableHighlight>
         )}
       </View>)}
+      </View>
+      <Button title={'Restart'} onPress={() => restartgame()}/>
     </>
   )
 }
@@ -281,9 +315,8 @@ function flagUnflag(x, y) {
 export default function App() {
   return (
     <View style={styles.container}>
-      <View style={styles.board}>
-        <GenBoard />
-      </View>
+      <GenBoard />
+      {/* <Button title={'Restart'} onPress={() => restartgame()}/> */}
     </View>
   );
 }
