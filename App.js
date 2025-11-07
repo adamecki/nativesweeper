@@ -1,6 +1,8 @@
 import {useState} from 'react';
-import { Alert, StyleSheet, Text, TouchableHighlight, View, Button } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableHighlight, View, Button, ImageBackground } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+
+import meadowBackground from "./assets/meadow-1x1.jpg";
 
 import MineSvgImage from './assets/icons/mine';
 import FlagSvgImage from './assets/icons/flag';
@@ -37,7 +39,6 @@ class Field {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#60AAFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -53,16 +54,16 @@ const styles = StyleSheet.create({
   field: {
     flex: 1,
     aspectRatio: 1 / 1,
-    backgroundColor: '#DDDDDD',
+    backgroundColor: '#EEEEEE',
     margin: '0.5%',
-    boxShadow: '2px 2px teal',
+    boxShadow: '2px 2px darkgreen',
   },
   fieldWithMine: {
     flex: 1,
     aspectRatio: 1/1,
     backgroundColor: '#DD0000',
     margin: '0.5%',
-    boxShadow: '2px 2px teal',
+    boxShadow: '2px 2px darkgreen',
   }, 
   aContainer: {
     position: 'relative',
@@ -73,6 +74,32 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 1 / 1,
     backgroundColor: 'rgba(0, 0, 255, 1)',
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  restartcontainer: {
+    width: '100%',
+    height: '10%',
+    padding: '3%',
+  }, 
+  restartbutton: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgb(0, 0, 255)',
+    boxShadow: '2px 2px darkgreen',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  restarttext: {
+    color: 'white',
+    fontSize: 28,
   },
 });
 
@@ -174,7 +201,16 @@ const GenBoard = () => {
         )}
       </View>)}
       </View>
-      <Button title={'Restart'} onPress={() => restartgame()}/>
+      <View style={styles.restartcontainer}>
+        {gameplay ?
+          <View style={styles.restartbutton}>
+            <Text style={styles.restarttext}>0:00</Text>
+          </View>
+          :
+          <TouchableHighlight style={styles.restartbutton} onPress={() => restartgame()}>
+            <Text style={styles.restarttext}>Restart</Text>
+          </TouchableHighlight>}
+      </View>
     </>
   )
 }
@@ -315,8 +351,11 @@ function flagUnflag(x, y) {
 export default function App() {
   return (
     <View style={styles.container}>
-      <GenBoard />
-      {/* <Button title={'Restart'} onPress={() => restartgame()}/> */}
+      <ImageBackground
+        source={meadowBackground} resizeMode='cover' style={styles.image}
+      >
+        <GenBoard/>
+      </ImageBackground>
     </View>
   );
 }
