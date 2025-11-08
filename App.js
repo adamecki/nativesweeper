@@ -25,6 +25,10 @@ let flds = [];
 
 let board = []; // board containing mine values for the algorithm (backend?)
 
+// Timer variables
+let startTimestamp; // Will be assigned on when gameplay starts
+let isCounting = false; // I wonder if it's necessary. I'll Let it be right now.
+
 // Field class containing its state: does it contain a mine? Is it already uncovered? How many mines are adjacent to it?
 class Field {
   constructor(hasMine, isUncovered, minesNear, isFlagged, flagsNear) {
@@ -106,10 +110,25 @@ const styles = StyleSheet.create({
 const GenBoard = () => {
   const [stateIsUncovered, setStateIsUncovered] = useState(board.map((x) => x.map((y) => y.isUncovered)));
   const [stateIsFlagged, setStateIsFlagged] = useState(board.map((x) => x.map((y) => y.isFlagged)));
+  const [statePrettyTime, setStatePrettyTime] = useState('0:00');
 
   if(!boardDone) {
     prepareBoard();
     boardDone = true;
+  }
+  
+  if(isCounting) {
+    setInterval(() => {
+      if(isCounting) {
+        let seconds = Math.floor((Date.now() - startTimestamp) / 1000);
+
+        if (seconds > 59) {
+          setStatePrettyTime(`${Math.floor((seconds - (seconds % 60)) / 60)}:${(seconds % 60) < 10 ? '0' : ''}${seconds % 60}`);
+        } else {
+          setStatePrettyTime(`0:${seconds < 10 ? '0' : ''}${seconds}`);
+        }
+      }
+    }, 100); // Update every 100 miliseconds in order to prevent timer value lagging
   }
   
   const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(0, 0, 255, 1)')})); // Tak jakby działa?
@@ -142,6 +161,7 @@ const GenBoard = () => {
     minesConfigured = false;
 
     gameplay = true;
+    setStatePrettyTime('0:00');
 
     const newFlds = board.map((x) => x.map((y) => y.isUncovered));
 
@@ -204,7 +224,7 @@ const GenBoard = () => {
       <View style={styles.restartcontainer}>
         {gameplay ?
           <View style={styles.restartbutton}>
-            <Text style={styles.restarttext}>0:00</Text>
+            <Text style={styles.restarttext}>{statePrettyTime}</Text>
           </View>
           :
           <TouchableHighlight style={styles.restartbutton} onPress={() => restartgame()}>
@@ -271,11 +291,16 @@ if(gameplay) {
   if(!minesConfigured) {
     placeMines(x, y);
     minesConfigured = true;
+
+    // start counting
+    startTimestamp = Date.now();
+    isCounting = true;
   }
 
   if(board[y][x].hasMine) { // Lost (optimize this stuff)
     if(!board[y][x].isFlagged) {
       gameplay = false;
+      isCounting = false;
 
       // Uncover the whole board?
       for(let i = 0; i < size; i++) {
@@ -307,6 +332,7 @@ if(gameplay) {
       if(uncoveredFields == (size * size) - minesToBePlaced) {
         // Won
         gameplay = false;
+        isCounting = false;
 
         // Uncover the whole board?
         for(let i = 0; i < size; i++) {
