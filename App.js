@@ -2,25 +2,46 @@ import { createStaticNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { View, Image } from 'react-native';
 
-import gameView from './game';
+import gameView from './screens/game';
+import optionsView from "./screens/options";
+import howtoView from "./screens/howto";
+
+import { navTheme, appStyleSheet } from "./styles";
+
+const icons = {
+    'Gra': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/game.png')}/>,
+    'Opcje': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/options.png')}/>,
+    'Instrukcja': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/howto.png')}/>,
+};
+const icons_focused = {
+    'Gra': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/game-focused.png')}/>,
+    'Opcje': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/options-focused.png')}/>,
+    'Instrukcja': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/howto-focused.png')}/>,
+};
 
 const RootStack = createBottomTabNavigator({
     screenOptions: ({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused }) => {
             return (
-                <View style={{display: 'flex', width: '100%', aspectRatio: 1/1}}>
-                    <Image style={{flex: 1, width: '100%'}} source={require('./assets/icons/png/mine.png')}/>
+                <View style={appStyleSheet.bottomNavigationIconContainer}>
+                    {focused ? 
+                        icons_focused[route.name]
+                    :  
+                        icons[route.name]
+                    }
                 </View>
             );
         },
     }),
     screens: {
-        Gra: gameView,
+        'Gra': gameView,
+        'Opcje': optionsView,
+        'Instrukcja': howtoView,
     },
 });
 
 const Navigation = createStaticNavigation(RootStack);
 
 export default function App() {
-    return <Navigation />;
+    return <Navigation theme={navTheme}/>;
 }

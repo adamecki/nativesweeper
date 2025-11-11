@@ -1,15 +1,19 @@
-import {useState} from 'react';
-import { Alert, StyleSheet, Text, TouchableHighlight, View, Button, ImageBackground } from 'react-native';
+import React from 'react';
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableHighlight, View, ImageBackground, Image, Pressable } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 
-import meadowBackground from "./assets/meadow-1x1.jpg";
+import meadowBackground from '../assets/meadow-1x1.jpg';
 
-import MineSvgImage from './assets/icons/mine';
-import FlagSvgImage from './assets/icons/flag';
-import NumberIcon from './assets/icons/number-icons';
+import MineSvgImage from '../assets/icons/mine';
+import FlagSvgImage from '../assets/icons/flag';
+import NumberIcon from '../assets/icons/number-icons';
+import { appStyleSheet } from '../styles';
 
-const size = 8; // Size of the board (a * a) [temporary solution]
-const minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
+let size = 8; // Size of the board (a * a) [temporary solution]
+let minesToBePlaced = 10; // Amount of mines to incorporate in the board [temporary solution]
 
 let minesPlaced = 0; // Amount of mines already placed (why is this global?)
 let uncoveredFields = 0; // Subtracted from the size and mines placed to determine whether the game is won
@@ -41,11 +45,6 @@ class Field {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   board: {
     width: '100%',
     aspectRatio: 1 / 1,
@@ -60,14 +59,14 @@ const styles = StyleSheet.create({
     aspectRatio: 1 / 1,
     backgroundColor: '#EEEEEE',
     margin: '0.5%',
-    boxShadow: '2px 2px darkgreen',
+    boxShadow: '2px 2px blue',
   },
   fieldWithMine: {
     flex: 1,
     aspectRatio: 1/1,
     backgroundColor: '#DD0000',
     margin: '0.5%',
-    boxShadow: '2px 2px darkgreen',
+    boxShadow: '2px 2px blue',
   }, 
   aContainer: {
     position: 'relative',
@@ -77,15 +76,7 @@ const styles = StyleSheet.create({
     flex: '1',
     width: '100%',
     aspectRatio: 1 / 1,
-    backgroundColor: 'rgba(0, 0, 255, 1)',
-  },
-  image: {
-    height: '100%',
-    width: '100%',
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(47, 95, 255, 1)',
   },
   restartcontainer: {
     width: '100%',
@@ -95,8 +86,8 @@ const styles = StyleSheet.create({
   restartbutton: {
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgb(0, 0, 255)',
-    boxShadow: '2px 2px darkgreen',
+    backgroundColor: 'rgb(47, 95, 255)',
+    boxShadow: '2px 2px blue',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -112,10 +103,24 @@ const GenBoard = () => {
   const [stateIsFlagged, setStateIsFlagged] = useState(board.map((x) => x.map((y) => y.isFlagged)));
   const [statePrettyTime, setStatePrettyTime] = useState('0:00');
 
-  if(!boardDone) {
+  const prepareBoard = () => {
+    for (let i = 0; i < size; i++) {
+      rows.push(i); // Push frontend rows
+      flds.push(i); // Push frontend fields
+
+      board.push([]); // Push backend rows
+      for (let j = 0; j < size; j++) {
+        board[i].push(new Field(false, false, 0, false, 0)); // Push backend fields
+      }
+    }
+  }
+
+  if (!boardDone) {
     prepareBoard();
     boardDone = true;
   }
+  
+  const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(47, 95, 255, 1)')}));
   
   if(isCounting) {
     setInterval(() => {
@@ -130,11 +135,9 @@ const GenBoard = () => {
       }
     }, 100); // Update every 100 miliseconds in order to prevent timer value lagging
   }
-  
-  const anim = board.map((row) => row.map(() => {return useSharedValue('rgba(0, 0, 255, 1)')})); // Tak jakby działa?
 
   const handlePress = (x, y) => {
-    uncoverField(y, x);
+    uncoverField(y, x, statePrettyTime);
     const newBoard = board.map((x) => x.map((y) => y.isUncovered));
 
     // Animate every field change in anim
@@ -169,7 +172,7 @@ const GenBoard = () => {
     for(let i = 0; i < size; i++) {
       for(let j = 0; j < size; j++) {
         if(!board[i][j].isUncovered) {
-          anim[i][j].value = withSpring('rgba(0, 0, 255, 1)');
+          anim[i][j].value = withSpring('rgba(47, 95, 255, 1)');
         }
       }
     }
@@ -228,28 +231,16 @@ const GenBoard = () => {
           </View>
           :
           <TouchableHighlight style={styles.restartbutton} onPress={() => restartgame()}>
-            <Text style={styles.restarttext}>Restart</Text>
+            <Text style={styles.restarttext}>Od nowa</Text>
           </TouchableHighlight>}
       </View>
     </>
   )
 }
 
-function prepareBoard() {
-  for (let i = 0; i < size; i++) {
-    rows.push(i); // Push frontend rows
-    flds.push(i); // Push frontend fields
-
-    board.push([]); // Push backend rows
-    for (let j = 0; j < size; j++) {
-      board[i].push(new Field(false, false, 0, false, 0)); // Push backend fields
-    }
-  }
-}
-
 function placeMines(notHereX, notHereY) { // Using the arguments, we want to make sure that the player doesn't start with stepping on a mine (which would be frustrating)
-  console.log('Placing mines...');
-  console.log(`${minesToBePlaced - minesPlaced} mines left to place.`);
+  // console.log('Placing mines...');
+  // console.log(`${minesToBePlaced - minesPlaced} mines left to place.`);
 
   // 1. Actually place mines
   while(minesPlaced < minesToBePlaced) {
@@ -262,11 +253,11 @@ function placeMines(notHereX, notHereY) { // Using the arguments, we want to mak
       board[ry][rx].hasMine = true;
       minesPlaced++;
 
-      console.log(`${minesToBePlaced - minesPlaced} mines left to place.`);
+      // console.log(`${minesToBePlaced - minesPlaced} mines left to place.`);
     }
   }
 
-  console.log('Mines placed. Setting up information about nearest mines.');
+  // console.log('Mines placed. Setting up information about nearest mines.');
 
   // 2. Determine, how many mines are adjacent to each field
   for(let x = 0; x < size; x++) {
@@ -283,10 +274,10 @@ function placeMines(notHereX, notHereY) { // Using the arguments, we want to mak
     }
   }
 
-  console.log('Mines information has been set up.');
+  // console.log('Mines information has been set up.');
 }
 
-function uncoverField(x, y, original = true) { // Restructurize these nested ifs
+function uncoverField(x, y, currenttime, original = true) { // Restructurize these nested ifs
 if(gameplay) {
   if(!minesConfigured) {
     placeMines(x, y);
@@ -309,7 +300,7 @@ if(gameplay) {
         }
       }
 
-      Alert.alert('Game over', 'Placeholder message');
+      Alert.alert('Koniec gry', 'Spróbuj ponownie!');
     }
   } else {
     if (original && board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
@@ -319,7 +310,7 @@ if(gameplay) {
       for(let nx = -1; nx <= 1; nx++) {
         for(let ny = -1; ny <= 1; ny++) {
           if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
-            uncoverField(x + nx, y + ny, false);
+            uncoverField(x + nx, y + ny, currenttime, false);
           }
         }
       }
@@ -327,7 +318,7 @@ if(gameplay) {
     if(!board[y][x].isUncovered && !board[y][x].isFlagged) {
       board[y][x].isUncovered = true;
       uncoveredFields++;
-      console.log(uncoveredFields);
+      // console.log(uncoveredFields);
 
       if(uncoveredFields == (size * size) - minesToBePlaced) {
         // Won
@@ -341,47 +332,105 @@ if(gameplay) {
           }
         }
 
-        Alert.alert('Congrats', 'Placeholder message');
+        Alert.alert('Gratulacje!', `Twój czas: ${currenttime}.`); // if it's best, announce it
       } else if(board[y][x].minesNear == 0) {
         for(let nx = -1; nx <= 1; nx++) {
           for(let ny = -1; ny <= 1; ny++) {
             if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size) {
-              uncoverField(x + nx, y + ny);
+              uncoverField(x + nx, y + ny, currenttime);
             }
           }
         }
       }
     }
   }
-}
-}
+}}
 
 function flagUnflag(x, y) {
-  if(!board[y][x].isUncovered) {
-    board[y][x].isFlagged = !board[y][x].isFlagged;
+  if(minesConfigured) {
+    if(!board[y][x].isUncovered) {
+      board[y][x].isFlagged = !board[y][x].isFlagged;
 
-    for(let nx = -1; nx <= 1; nx++) {
-      for(let ny = -1; ny <= 1; ny++) {
-          if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
-            if (board[y][x].isFlagged) { // add a flagnear
-              board[y+ny][x+nx].flagsNear += 1;
-            } else { //subtract a flagnear
-              board[y+ny][x+nx].flagsNear -= 1;
+      for(let nx = -1; nx <= 1; nx++) {
+        for(let ny = -1; ny <= 1; ny++) {
+            if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
+              if (board[y][x].isFlagged) { // add a flagnear
+                board[y+ny][x+nx].flagsNear += 1;
+              } else { //subtract a flagnear
+                board[y+ny][x+nx].flagsNear -= 1;
+              }
             }
-          }
+        }
       }
     }
   }
 }
 
-export default function gameView() {
+const ReadyGameView = () => {
+  const [isTheLogoCool, setIsTheLogoCool] = useState(0);
+
   return (
-    <View style={styles.container}>
+    <View style={appStyleSheet.container}>
       <ImageBackground
-        source={meadowBackground} resizeMode='cover' style={styles.image}
+        source={meadowBackground} resizeMode='cover' style={appStyleSheet.appBackground}
       >
+        <Pressable style={[appStyleSheet.logoContainer, {activeOpacity: 0}]} onPress={() => {
+            setIsTheLogoCool(isTheLogoCool + 1)
+            if(isTheLogoCool > 8) {
+              Alert.alert('Odkryłeś cool logo', 'O kurczaki, logo jest teraz cool!');
+            }
+          }}>
+          {isTheLogoCool > 9
+          ? <Image style={appStyleSheet.logo} source={require('../assets/cool-logo.gif')}/>
+          : <Image style={appStyleSheet.logo} source={require('../assets/logo-wide.png')}/>
+          }
+        </Pressable>
         <GenBoard/>
+        <View style={appStyleSheet.logoContainer}></View>
       </ImageBackground>
     </View>
   );
+}
+
+export default function gameView() {
+  const [isReady, setIsReady] = useState(false);
+  const route = useRoute();
+  const navigation = useNavigation();
+
+  const loadMode = async() => {
+    const boardSize = Number(await AsyncStorage.getItem("BoardSize"));
+    size = boardSize;
+    minesToBePlaced = Math.floor((size * size) * 0.15625);
+    setIsReady(true);
+  }
+
+  useEffect(() => {
+    loadMode();
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (route.params?.refresh) {
+        navigation.setParams({ refresh: undefined });
+
+        board = [];
+        rows = [];
+        flds = [];
+        minesPlaced = 0;
+        uncoveredFields = 0;
+        minesConfigured = false;
+        boardDone = false;
+        isCounting = false;
+        
+        setIsReady(false);
+        loadMode();
+      }
+    }, [route.params?.refresh])
+  )
+
+  if(!isReady) {
+    return <></>;
+  } else {
+    return <ReadyGameView/>;
+  }
 }
