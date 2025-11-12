@@ -8,6 +8,8 @@ import howtoView from "./screens/howto";
 
 import { navTheme, appStyleSheet } from "./styles";
 
+// import AsyncStorage from "@react-native-async-storage/async-storage"; // only for checking first run
+
 const icons = {
     'Gra': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/game.png')}/>,
     'Opcje': <Image style={appStyleSheet.bottomNavigationIcon} source={require('./assets/icons/tabs/options.png')}/>,
@@ -43,5 +45,12 @@ const RootStack = createBottomTabNavigator({
 const Navigation = createStaticNavigation(RootStack);
 
 export default function App() {
+    // check first run
+    // const clear = async() => {
+    //     await AsyncStorage.clear();
+    //     console.log('cleared');
+    // }
+    // clear();
+    
     return <Navigation theme={navTheme}/>;
 }

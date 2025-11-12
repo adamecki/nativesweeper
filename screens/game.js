@@ -399,8 +399,8 @@ export default function gameView() {
 
   const loadMode = async() => {
     try {
-      let boardSize = Number(await AsyncStorage.getItem("BoardSize"));
-      if (isNaN(boardSize)) {
+      let boardSize = await AsyncStorage.getItem("BoardSize");
+      if (boardSize == null) {
         boardSize = 8;
         try {
           await AsyncStorage.setItem("BoardSize", '8');
@@ -408,7 +408,7 @@ export default function gameView() {
           alert(err_set);
         }
       }
-      size = boardSize;
+      size = Number(boardSize);
       minesToBePlaced = Math.floor((size * size) * 0.15625);
       setIsReady(true);
     } catch(err) {

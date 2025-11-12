@@ -29,7 +29,19 @@ const optionsView = () => {
 
     const fetchBoardSize = async () => {
         try {
-            sharedSize.value = await AsyncStorage.getItem("BoardSize");
+            let value = await AsyncStorage.getItem("BoardSize");
+
+            if (value == null) {
+                sharedSize.value = 8;
+                try {
+                    await AsyncStorage.setItem("BoardSize", '8');
+                } catch(err_set) {
+                    alert(err_set);
+                }
+            } else {
+                sharedSize.value = Number(value);
+            }
+
             offset.value = (await AsyncStorage.getItem("BoardSize") - 8) * 62;
         } catch(err) {
             alert(err);
