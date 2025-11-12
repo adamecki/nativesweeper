@@ -65,4 +65,4 @@ npm install
 npx expo start
 ```
 - Pojawi się kod QR. Zeskanuj go smartfonem i aplikacja uruchomi się w Expo Go.
-<img src="./screenshots/4.PNG" alt="Terminal" width="40%">
+<img src="./screenshots/4.PNG" alt="Terminal" width="80%">
