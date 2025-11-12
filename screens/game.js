@@ -399,8 +399,8 @@ export default function gameView() {
 
   const loadMode = async() => {
     try {
-      const boardSize = Number(await AsyncStorage.getItem("BoardSize"));
-      if (boardSize == null) {
+      let boardSize = Number(await AsyncStorage.getItem("BoardSize"));
+      if (isNaN(boardSize)) {
         boardSize = 8;
         try {
           await AsyncStorage.setItem("BoardSize", '8');
