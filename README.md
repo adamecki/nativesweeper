@@ -1,10 +1,14 @@
 # Nativesweeper
+
+<img src="./screenshots/logo.png" alt="Logo gry">
+
 Nativesweeper to gra mobilna będąca klonem windowsowego "Sapera" zaprojektowana z użyciem React Native oraz Expo Go.
 
 <img src="./screenshots/1.PNG" alt="Ekran główny gry" width="40%">
 
 # O grze
 <img src="./screenshots/2.PNG" alt="Ekran przegranej" width="40%">
+
 Zasady gry są takie same jak w przypadku Sapera, a więc:
 - Plansza składa się z pól "pustych" oraz zawierających miny,
 - Po naciśnięciu na puste pole jest ono odkrywane, po naciśnięciu na pole z miną następuje koniec gry,
@@ -16,6 +20,7 @@ Sterowanie jest dostosowane dla ekranów dotykowych:
 - Przytrzymanie nieodsłoniętego pola dodaje lub usuwa flagę na tym polu.
 
 <img src="./screenshots/3.PNG" alt="Ekran ustawień" width="40%">
+
 Ustawienia gry umożliwiają dostosowanie rozmiaru kwadratowej planszy, rozpoczynając od 8 na 8 pikseli, kończąc na 12 na 12 pikseli. Około 16% pól na planszy zawiera miny.
 
 # Wykorzystane biblioteki
@@ -66,4 +71,5 @@ npm install
 npx expo start
 ```
 - Pojawi się kod QR. Zeskanuj go smartfonem i aplikacja uruchomi się w Expo Go.
+
 <img src="./screenshots/4.PNG" alt="Terminal" width="80%">
