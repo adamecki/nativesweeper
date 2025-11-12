@@ -1,5 +1,6 @@
 # Nativesweeper
 Nativesweeper to gra mobilna będąca klonem windowsowego "Sapera" zaprojektowana z użyciem React Native oraz Expo Go.
+<img src="./screenshots/1.PNG" alt="Ekran główny gry" width="40%">
 ![Ekran główny gry](./screenshots/1.PNG)
 
 # O grze
