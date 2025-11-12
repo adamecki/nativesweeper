@@ -377,7 +377,7 @@ const ReadyGameView = () => {
         <Pressable style={[appStyleSheet.logoContainer, {activeOpacity: 0}]} onPress={() => {
             setIsTheLogoCool(isTheLogoCool + 1)
             if(isTheLogoCool > 8) {
-              Alert.alert('Odkryłeś cool logo', 'O kurczaki, logo jest teraz cool!');
+              Alert.alert('Odkryłeś cool logo', 'O kurczaki, logo jest teraz cool!\nSprawdź cooltext.com');
             }
           }}>
           {isTheLogoCool > 9

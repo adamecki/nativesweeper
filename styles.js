@@ -100,4 +100,52 @@ export const appStyleSheet = StyleSheet.create({
     },
 
     // HowTo screen
+    instructionsScrollView: {
+        width: '100%',
+        height: '100%',
+    },
+    instructionsContainer: {
+        display: 'flex',
+        alignItems: 'center',
+    }, 
+    instructionsBackground: {
+        marginTop: 16,
+        marginBottom: 16,
+        backgroundColor: 'rgba(47, 95, 255, 0.5)',
+        boxShadow: '2px 2px blue',
+        width: '90%',
+        display: 'flex',
+        alignItems: 'center',
+        padding: 4,
+    },
+    instructionSection: {
+        width: '100%',
+        padding: 8,
+    },
+    instructionDescriptor: {
+        color: 'white',
+    },
+    instructionDescriptorList: {
+        color: 'white',
+        marginLeft: 16,
+        marginTop: 4,
+        marginBottom: 4,
+    },
+    instructionImage: {
+        width: '100%',
+        height: null,
+        aspectRatio: 1/1,
+    },
+    smallImage: {
+        width: '25%',
+    },
+    sideBySideFlex: {
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
+        marginBottom: 8,
+        gap: 16,
+    },
 });
