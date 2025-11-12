@@ -398,10 +398,22 @@ export default function gameView() {
   const navigation = useNavigation();
 
   const loadMode = async() => {
-    const boardSize = Number(await AsyncStorage.getItem("BoardSize"));
-    size = boardSize;
-    minesToBePlaced = Math.floor((size * size) * 0.15625);
-    setIsReady(true);
+    try {
+      const boardSize = Number(await AsyncStorage.getItem("BoardSize"));
+      if (boardSize == null) {
+        boardSize = 8;
+        try {
+          await AsyncStorage.setItem("BoardSize", '8');
+        } catch(err_set) {
+          alert(err_set);
+        }
+      }
+      size = boardSize;
+      minesToBePlaced = Math.floor((size * size) * 0.15625);
+      setIsReady(true);
+    } catch(err) {
+      alert(err);
+    }
   }
 
   useEffect(() => {
