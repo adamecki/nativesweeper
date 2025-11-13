@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableHighlight, View, ImageBackground, Image, Pressable } from 'react-native';
+import { Alert, Text, TouchableHighlight, View, ImageBackground, Image, Pressable } from 'react-native';
 import Animated, { useSharedValue, withSpring } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -43,60 +43,6 @@ class Field {
     this.flagsNear = flagsNear;
   }
 };
-
-const styles = StyleSheet.create({
-  board: {
-    width: '100%',
-    aspectRatio: 1 / 1,
-    padding: '3%',
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  field: {
-    flex: 1,
-    aspectRatio: 1 / 1,
-    backgroundColor: '#EEEEEE',
-    margin: '0.5%',
-    boxShadow: '2px 2px blue',
-  },
-  fieldWithMine: {
-    flex: 1,
-    aspectRatio: 1/1,
-    backgroundColor: '#DD0000',
-    margin: '0.5%',
-    boxShadow: '2px 2px blue',
-  }, 
-  aContainer: {
-    position: 'relative',
-  },
-  cover: {
-    position: 'absolute',
-    flex: '1',
-    width: '100%',
-    aspectRatio: 1 / 1,
-    backgroundColor: 'rgba(47, 95, 255, 1)',
-  },
-  restartcontainer: {
-    width: '100%',
-    height: '10%',
-    padding: '3%',
-  }, 
-  restartbutton: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgb(47, 95, 255)',
-    boxShadow: '2px 2px blue',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  restarttext: {
-    color: 'white',
-    fontSize: 28,
-  },
-});
 
 const GenBoard = () => {
   const [stateIsUncovered, setStateIsUncovered] = useState(board.map((x) => x.map((y) => y.isUncovered)));
@@ -193,14 +139,14 @@ const GenBoard = () => {
 
   return (
     <>
-      <View style={styles.board}>
-      {rows.map((rowNumber) => <View style={styles.row} key={rowNumber}>
+      <View style={appStyleSheet.board}>
+      {rows.map((rowNumber) => <View style={appStyleSheet.row} key={rowNumber}>
         {flds.map((fldNumber) =>
-          <TouchableHighlight style={board[rowNumber][fldNumber].hasMine ? styles.fieldWithMine : styles.field}
+          <TouchableHighlight style={board[rowNumber][fldNumber].hasMine ? [appStyleSheet.fieldWithMine, appStyleSheet.field] : appStyleSheet.field}
             onPress={() => handlePress(rowNumber, fldNumber)}
             onLongPress={() => handleLongPress(rowNumber, fldNumber)}
             key={fldNumber}>
-            <View style={styles.aContainer}>
+            <View style={appStyleSheet.svgContainer}>
               <>
               <Text>
                 {board[rowNumber][fldNumber].hasMine ?
@@ -212,7 +158,7 @@ const GenBoard = () => {
                 }
               </Text>
               </>
-              <Animated.View style={[styles.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}>
+              <Animated.View style={[appStyleSheet.cover, {backgroundColor: anim[rowNumber][fldNumber]}]}>
                 <Text>
                   {board[rowNumber][fldNumber].isFlagged ?
                     FlagSvgImage() : ''
@@ -224,14 +170,14 @@ const GenBoard = () => {
         )}
       </View>)}
       </View>
-      <View style={styles.restartcontainer}>
+      <View style={appStyleSheet.restartcontainer}>
         {gameplay ?
-          <View style={styles.restartbutton}>
-            <Text style={styles.restarttext}>{statePrettyTime}</Text>
+          <View style={appStyleSheet.restartbutton}>
+            <Text style={appStyleSheet.restarttext}>{statePrettyTime}</Text>
           </View>
           :
-          <TouchableHighlight style={styles.restartbutton} onPress={() => restartgame()}>
-            <Text style={styles.restarttext}>Od nowa</Text>
+          <TouchableHighlight style={appStyleSheet.restartbutton} onPress={() => restartgame()}>
+            <Text style={appStyleSheet.restarttext}>Od nowa</Text>
           </TouchableHighlight>}
       </View>
     </>

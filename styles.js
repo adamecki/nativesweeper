@@ -30,7 +30,7 @@ export const appStyleSheet = StyleSheet.create({
     bottomNavigationIconContainer: {
         display: 'flex',
         width: '100%',
-        aspectRatio: 1/1,
+        aspectRatio: 1 / 1,
     },
     bottomNavigationIcon: {
         flex: 1,
@@ -38,7 +38,6 @@ export const appStyleSheet = StyleSheet.create({
     },
 
     // Game screen
-    
     logoContainer: {
         display: 'flex',
         flex: 1,
@@ -50,6 +49,54 @@ export const appStyleSheet = StyleSheet.create({
         flex: 1,
         resizeMode: 'contain',
         width: 400,
+    },
+    board: {
+        width: '100%',
+        aspectRatio: 1 / 1,
+        padding: '3%',
+    },
+    row: {
+        flex: 1,
+        flexDirection: 'row',
+    },
+    // -
+    field: {
+        flex: 1,
+        aspectRatio: 1 / 1,
+        backgroundColor: '#EEEEEE',
+        margin: '0.5%',
+        boxShadow: '2px 2px blue',
+    },
+    fieldWithMine: {
+        backgroundColor: '#DD0000',
+    },
+    svgContainer: {
+        position: 'relative',
+    },
+    cover: {
+        position: 'absolute',
+        flex: '1',
+        width: '100%',
+        aspectRatio: 1 / 1,
+        backgroundColor: 'rgba(47, 95, 255, 1)',
+    },
+    restartcontainer: {
+        width: '100%',
+        height: '10%',
+        padding: '3%',
+    },
+    restartbutton: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgb(47, 95, 255)',
+        boxShadow: '2px 2px blue',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    restarttext: {
+        color: 'white',
+        fontSize: 28,
     },
 
     // Options screen
@@ -70,7 +117,7 @@ export const appStyleSheet = StyleSheet.create({
     },
     footerSignature: {
         bottom: 16,
-    },  
+    },
 
     // Board size slider
     sliderTrack: {
@@ -107,7 +154,7 @@ export const appStyleSheet = StyleSheet.create({
     instructionsContainer: {
         display: 'flex',
         alignItems: 'center',
-    }, 
+    },
     instructionsBackground: {
         marginTop: 16,
         marginBottom: 16,
@@ -134,7 +181,7 @@ export const appStyleSheet = StyleSheet.create({
     instructionImage: {
         width: '100%',
         height: null,
-        aspectRatio: 1/1,
+        aspectRatio: 1 / 1,
     },
     smallImage: {
         width: '25%',
