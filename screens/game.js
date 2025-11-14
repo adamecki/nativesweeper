@@ -120,12 +120,28 @@ function uncoverField(x, y, currenttime, original = false) {
 
         Alert.alert('Koniec gry', 'Spróbuj ponownie!');
       } else { 
-        // Case 2: Pressing an uncovered field without a mine
+        if (original && board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
+          // Case 2: Pressing field with a number, when there is right amount of flags around
+
+          // Zeroing the flagsNear value prevents exceeding the callstack (adjacent uncovered fields would call each other's uncover function into infinity)
+          // Also it's not needed anymore as adjacent fields already get uncovered, we can't uncover anything anymore from this field
+          board[y][x].flagsNear = 0;
+
+          for(let nx = -1; nx <= 1; nx++) {
+            for(let ny = -1; ny <= 1; ny++) {
+              if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
+                uncoverField(x + nx, y + ny, currenttime);
+              }
+            }
+          }
+        }
+
+        // Case 3: Pressing an uncovered field without a mine
         if(!board[y][x].isUncovered) {
           board[y][x].isUncovered = true;
           uncoveredFields++;
 
-          // Case 2a: Uncovering the last empty field, thus winning the game
+          // Case 3a: Uncovering the last empty field, thus winning the game
           if(uncoveredFields == (size * size) - minesToBePlaced) {
             
             gameplay = false;
@@ -140,28 +156,12 @@ function uncoverField(x, y, currenttime, original = false) {
 
             Alert.alert('Gratulacje!', `Twój czas: ${currenttime}.`);
           } else if(board[y][x].minesNear == 0) {
-            // Case 2b: Uncovering a field that has no adjacent mines, thus uncovering the surrounding fields
+            // Case 3b: Uncovering a field that has no adjacent mines, thus uncovering the surrounding fields
             for(let nx = -1; nx <= 1; nx++) {
               for(let ny = -1; ny <= 1; ny++) {
                 if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size) {
                   uncoverField(x + nx, y + ny, currenttime);
                 }
-              }
-            }
-          }
-        }
-
-        if (original && board[y][x].isUncovered && board[y][x].minesNear == board[y][x].flagsNear && board[y][x].minesNear != 0) {
-          // Case 3: Pressing field with a number, when there is right amount of flags around
-
-          // Zeroing the flagsNear value prevents exceeding the callstack (adjacent uncovered fields would call each other's uncover function into infinity)
-          // Also it's not needed anymore as adjacent fields already get uncovered, we can't uncover anything anymore from this field
-          board[y][x].flagsNear = 0;
-
-          for(let nx = -1; nx <= 1; nx++) {
-            for(let ny = -1; ny <= 1; ny++) {
-              if(x + nx >= 0 && x + nx < size && y + ny >= 0 && y + ny < size && (nx != 0 || ny != 0)) {
-                uncoverField(x + nx, y + ny, currenttime);
               }
             }
           }

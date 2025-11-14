@@ -2,7 +2,7 @@
 
 <img src="./screenshots/logo.png" alt="Logo gry">
 
-Nativesweeper to gra mobilna będąca klonem windowsowego "Sapera" zaprojektowana z użyciem React Native oraz Expo Go.
+Nativesweeper to logiczna gra mobilna będąca klonem windowsowego "Sapera" zaprojektowana z użyciem React Native oraz Expo Go.
 
 <img src="./screenshots/1.PNG" alt="Ekran główny gry" width="40%">
 
@@ -73,3 +73,6 @@ npx expo start
 - Pojawi się kod QR. Zeskanuj go smartfonem i aplikacja uruchomi się w Expo Go.
 
 <img src="./screenshots/4.PNG" alt="Terminal" width="80%">
+
+# Credits
+- [Tło aplikacji](https://wallhaven.cc/w/zym7og)
