@@ -19,7 +19,7 @@ const optionsView = () => {
 
     const saveBoardSize = async () => {
         try {
-            await AsyncStorage.setItem("BoardSize", `${sharedSize.value}`);
+            await AsyncStorage.setItem("BoardSize", `${dynamicLabelUpdateOffset.value}`);
         } catch(err) {
             alert(err);
         }
@@ -32,14 +32,14 @@ const optionsView = () => {
             let value = await AsyncStorage.getItem("BoardSize");
 
             if (value == null) {
-                sharedSize.value = 8;
+                dynamicLabelUpdateOffset.value = 8;
                 try {
                     await AsyncStorage.setItem("BoardSize", '8');
                 } catch(err_set) {
                     alert(err_set);
                 }
             } else {
-                sharedSize.value = Number(value);
+                dynamicLabelUpdateOffset.value = Number(value);
             }
 
             offset.value = (await AsyncStorage.getItem("BoardSize") - 8) * 62;
@@ -49,7 +49,7 @@ const optionsView = () => {
     }
 
     const offset = useSharedValue(0);
-    const sharedSize = useSharedValue(8);
+    const dynamicLabelUpdateOffset = useSharedValue(8);
     fetchBoardSize();
     const max_value = slider_width - initial_size;
 
@@ -61,10 +61,13 @@ const optionsView = () => {
                     ? max_value
                     : offset.value + event.changeX
             : offset.value;
+        
+        const newSize = Math.round(offset.value / 62);
+        dynamicLabelUpdateOffset.value = newSize + 8;
     }).onEnd(() => {
         const newSize = Math.round(offset.value / 62);
         offset.value = newSize * 62;
-        sharedSize.value = 8 + newSize;
+        dynamicLabelUpdateOffset.value = newSize + 8;
     });
 
     const sliderStyle = useAnimatedStyle(() => {
@@ -75,8 +78,8 @@ const optionsView = () => {
 
     const boardSizeDescriptor = useAnimatedProps(() => {
         return {
-            text: `${sharedSize.value} na ${sharedSize.value}`,
-            defaultValue: `${sharedSize.value} na ${sharedSize.value}`
+            text: `${dynamicLabelUpdateOffset.value} na ${dynamicLabelUpdateOffset.value}`,
+            defaultValue: `${dynamicLabelUpdateOffset.value} na ${dynamicLabelUpdateOffset.value}`
         };
     });
 
