@@ -101,10 +101,6 @@ const optionsView = () => {
                             <Text style={appStyleSheet.optionDescriptor}>Zapisz (zrestartuje grę!)</Text>
                         </View>
                     </TouchableHighlight>
-
-                    {/* <View>
-                        <Text style={appStyleSheet.optionHeader}>Ilość min</Text> // set how many percent is mines; maybe in the future?
-                    </View> */}
                 </View>
             </GestureHandlerRootView>
             <View style={appStyleSheet.footerSignature}>
