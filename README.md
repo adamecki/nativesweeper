@@ -33,8 +33,10 @@ Ustawienia gry umożliwiają dostosowanie rozmiaru kwadratowej planszy, rozpoczy
 # Uruchomienie
 ## Wymagania
 - Git (do sklonowania repozytorium, ewentualnie można pobrać ZIP i wypakować),
-- node.js v25.1.0 lub nowszy,
+- node.js v24.11.1 LTS lub nowszy (instrukcje instalacji dotyczą menedżera pakietów npm),
 - Android Studio (jeśli aplikacja jest uruchamiana na emulatorze Androida).
+
+Aplikacja może, ale nie musi działać ze starszymi wersjami node.js (nie była na nich testowana).
 
 ## Emulator Androida
 - Skonfiguruj [emulator Androida](https://docs.expo.dev/get-started/set-up-your-environment/?platform=android&device=simulated).
